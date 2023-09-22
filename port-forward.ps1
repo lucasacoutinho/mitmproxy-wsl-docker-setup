@@ -1,7 +1,5 @@
-# port-forward.ps1
-
-# Define the ports you want to forward
-$portsToForward = @(8180, 8181)
+# Get the ports from the command line argument
+$portsToForward = $args[0] -split ',' | ForEach-Object { [int]$_ }
 
 # Get WSL2 IP
 $wslIp = wsl -e bash -c "ip addr show eth0 | grep 'inet ' | cut -d ' ' -f 6 | cut -d '/' -f 1"

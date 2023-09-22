@@ -1,19 +1,20 @@
-# cleanup.ps1
+# Get the ports from the command line argument
+$portsToCleanup = $args[0] -split ',' | ForEach-Object { [int]$_ }
 
-# Define the ports you had forwarded
-$portsToForward = @(8180, 8181)
-
-# Loop through each port to remove forwarding and firewall rules
-foreach ($port in $portsToForward) {
+# Loop through each port and remove forwarding and firewall rules
+foreach ($port in $portsToCleanup) {
     # Remove port forwarding rules for the current port
     netsh interface portproxy delete v4tov4 listenport=$port listenaddress=0.0.0.0
 
-    # Remove the firewall rule for the current port
     $firewallRule = Get-NetFirewallRule -DisplayName "WSL2 Port $port" -ErrorAction SilentlyContinue
+
+    # If the firewall rule exists, remove it
     if ($firewallRule) {
         Remove-NetFirewallRule -DisplayName "WSL2 Port $port"
         Write-Output "Firewall rule removed for port $port"
+    } else {
+        Write-Output "No firewall rule exists for port $port"
     }
 }
 
-Write-Output "Cleanup completed for ports: $($portsToForward -join ', ')"
+Write-Output "Cleanup completed for ports: $($portsToCleanup -join ', ')"
