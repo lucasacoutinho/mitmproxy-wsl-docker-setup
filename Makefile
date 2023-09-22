@@ -1,19 +1,10 @@
 # Makefile
 
-PORTS ?= 8180
+# Default target
+default: run-ansible
 
-default: all
-
-all: build run port_forward
-
-build:
-	ansible-playbook mitmproxy_setup.yml --extra-vars "ports=$(PORTS)" --tags build
-
-run:
-	ansible-playbook mitmproxy_setup.yml --extra-vars "ports=$(PORTS)" --tags run
-
-port_forward:
-	ansible-playbook mitmproxy_setup.yml --extra-vars "ports=$(PORTS)" --tags port_forward
+run-ansible:
+	ansible-playbook mitmproxy_setup.yml
 
 cleanup:
-	ansible-playbook mitmproxy_setup.yml --extra-vars "ports=$(PORTS)" --tags cleanup
+	./run-cleanup.sh
