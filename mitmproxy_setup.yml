@@ -1,0 +1,25 @@
+- name: Setup mitmproxy container with custom port and redirection
+  hosts: localhost
+  tasks:
+    - name: Build mitmproxy Docker image
+      docker_image:
+        name: mitmproxy_image
+        source: build
+        build:
+          path: ./
+          pull: yes
+
+    - name: Run mitmproxy container
+      docker_container:
+        name: mitmproxy_container
+        image: mitmproxy_image
+        state: started
+        ports:
+          - "8180:8180" # mitmproxy port
+          - "8181:8181" # mitmweb port
+        volumes:
+          - "./redirect.py:/home/mitmproxy/redirect.py"
+        command: "mitmweb --listen-host 0.0.0.0 --listen-port 8180 -s /home/mitmproxy/redirect.py --web-host 0.0.0.0 --web-port 8181"
+
+    - name: Execute port forwarding script
+      ansible.builtin.script: run-port-forward.sh
